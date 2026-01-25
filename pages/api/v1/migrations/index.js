@@ -21,6 +21,7 @@ export default async function migrations(request, response) {
       dir: join("infra", "migrations"),
       direction: "up",
       verbose: true,
+
       migrationsTable: "pgmigrations",
     };
 
