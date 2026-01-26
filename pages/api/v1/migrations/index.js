@@ -21,7 +21,6 @@ export default async function migrations(request, response) {
       dir: join("infra", "migrations"),
       direction: "up",
       verbose: true,
-
       migrationsTable: "pgmigrations",
     };
 
@@ -41,7 +40,7 @@ export default async function migrations(request, response) {
         return response.status(201).json(migratedMigrations);
       }
 
-      response.status(200).json(migratedMigrations);
+      return response.status(200).json(migratedMigrations);
     }
   } catch (error) {
     console.log(error);
