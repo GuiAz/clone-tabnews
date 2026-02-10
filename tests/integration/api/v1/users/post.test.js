@@ -1,5 +1,7 @@
 import orchestrator from "tests/orchestrator";
 import { version as uuidVersion } from "uuid";
+import user from "models/user.js";
+import password from "models/password.js";
 
 beforeAll(async () => {
   await orchestrator.waitForAllServices();
@@ -30,7 +32,7 @@ describe("POST /api/v1/users", () => {
         id: responseBody.id,
         username: "guilhermeazevedo",
         email: "guicottas@curso.dev",
-        password: "senha123",
+        password: responseBody.password,
         create_at: responseBody.create_at,
         update_at: responseBody.update_at,
       });
@@ -38,6 +40,20 @@ describe("POST /api/v1/users", () => {
       expect(uuidVersion(responseBody.id)).toBe(4);
       expect(Date.parse(responseBody.create_at)).not.toBeNaN();
       expect(Date.parse(responseBody.update_at)).not.toBeNaN();
+
+      const userInDataBase = await user.findOneByUsername("guilhermeazevedo");
+      const correctPasswordMatch = await password.compare(
+        "senha123",
+        userInDataBase.password,
+      );
+
+      const incorrectPasswordMatch = await password.compare(
+        "SenhaErrada",
+        userInDataBase.password,
+      );
+
+      expect(correctPasswordMatch).toBe(true);
+      expect(incorrectPasswordMatch).toBe(false);
     });
 
     test("With duplicated 'email'", async () => {
@@ -74,7 +90,7 @@ describe("POST /api/v1/users", () => {
       expect(response2Body).toEqual({
         name: "ValidationError",
         message: "O email informado já está sendo utilizado.",
-        action: "Utilize outro email para realizar o cadastro.",
+        action: "Utilize outro email para realizar está operação.",
         statusCode: 400,
       });
     });
@@ -113,7 +129,7 @@ describe("POST /api/v1/users", () => {
       expect(response2Body).toEqual({
         name: "ValidationError",
         message: "O username informado já está sendo utilizado.",
-        action: "Utilize outro username para realizar o cadastro.",
+        action: "Utilize outro username para realizar está operação.",
         statusCode: 400,
       });
     });
